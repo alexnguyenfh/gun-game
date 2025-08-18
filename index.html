@@ -3,200 +3,578 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drama Hồng Tỷ: Visual Novel Hài Hước</title>
+    <title>Game Bắn Súng 3D</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+        * {
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            color: #333;
+            box-sizing: border-box;
         }
-        #game-container {
-            width: 800px;
-            height: 600px;
-            background-color: #fff;
-            border: 2px solid #ccc;
-            border-radius: 10px;
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #000;
             overflow: hidden;
-            position: relative;
         }
-        #background {
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
+        
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #ui {
             position: absolute;
             top: 0;
             left: 0;
-            opacity: 0.8;
-        }
-        #dialogue-box {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: #fff;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        #character-name {
-            font-weight: bold;
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-        #dialogue-text {
-            font-size: 16px;
-        }
-        #choices {
-            margin-top: 20px;
-        }
-        .choice-button {
-            background-color: #4CAF50;
+            z-index: 100;
             color: white;
-            border: none;
-            padding: 10px 20px;
-            margin: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            border-radius: 5px;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
-        .choice-button:hover {
-            background-color: #45a049;
-        }
-        #character-image {
+        
+        #crosshair {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 300px;
-            height: auto;
-            display: none;
+            width: 20px;
+            height: 20px;
+            z-index: 101;
+            pointer-events: none;
+        }
+        
+        #crosshair::before, #crosshair::after {
+            content: '';
+            position: absolute;
+            background: #ff0000;
+            border-radius: 1px;
+        }
+        
+        #crosshair::before {
+            width: 2px;
+            height: 20px;
+            left: 9px;
+        }
+        
+        #crosshair::after {
+            width: 20px;
+            height: 2px;
+            top: 9px;
+        }
+        
+        #instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            text-align: center;
+            z-index: 102;
+            background: rgba(0,0,0,0.7);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+        }
+        
+        #instructions h2 {
+            color: #ff6600;
+            margin-bottom: 15px;
+        }
+        
+        #instructions p {
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+        
+        #instructions button {
+            background: #ff6600;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.3s;
+        }
+        
+        #instructions button:hover {
+            background: #ff8833;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        #gameOver {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            text-align: center;
+            z-index: 102;
+            background: rgba(0,0,0,0.8);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 400px;
+        }
+        
+        #gameOver h2 {
+            color: #ff0000;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        
+        #gameOver button {
+            background: #00ff00;
+            color: black;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+        
+        #gameOver button:hover {
+            background: #33ff33;
         }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <div id="background"></div>
-        <img id="character-image" src="" alt="Character">
-        <div id="dialogue-box">
-            <div id="character-name"></div>
-            <div id="dialogue-text"></div>
-            <div id="choices"></div>
+    <div id="gameContainer">
+        <div id="ui">
+            <div>Điểm: <span id="score">0</span></div>
+            <div>Đạn: <span id="ammo">30</span></div>
+            <div>Máu: <span id="health">100</span></div>
+            <div>Kẻ thù: <span id="enemies">0</span></div>
+        </div>
+        
+        <div id="crosshair"></div>
+        
+        <div id="instructions">
+            <h2>🎯 Game Bắn Súng 3D</h2>
+            <p><strong>Điều khiển:</strong></p>
+            <p>• WASD: Di chuyển</p>
+            <p>• Chuột: Nhìn xung quanh</p>
+            <p>• Click chuột: Bắn</p>
+            <p>• R: Nạp đạn</p>
+            <p>• Shift: Chạy</p>
+            <p><strong>Mục tiêu:</strong> Tiêu diệt kẻ thù (khối đỏ) và tránh bị tấn công!</p>
+            <button onclick="startGame()">Bắt Đầu Game</button>
+        </div>
+        
+        <div id="gameOver" class="hidden">
+            <h2>Game Over!</h2>
+            <p>Điểm cuối cùng: <span id="finalScore">0</span></p>
+            <button onclick="restartGame()">Chơi Lại</button>
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // Dữ liệu game: Các cảnh, đối thoại, lựa chọn
-        const scenes = {
-            start: {
-                background: 'aaa.png',
-                character: 'Bạn',
-                dialogue: 'Bạn là một chàng trai cô đơn ở Trung Quốc, đang lướt app hẹn hò. Bỗng thấy profile của "Hồng Tỷ" - một chị gái quyến rũ, tự xưng là "vợ người khác" thích phiêu lưu.',
-                choices: [
-                    { text: 'Nhắn tin chào hỏi', next: 'greet' },
-                    { text: 'Bỏ qua, nghi ngờ lừa đảo', next: 'end_safe' }
-                ]
-            },
-            greet: {
-                background: 'background.jpg',
-                character: 'Hồng Tỷ',
-                dialogue: 'Chào anh đẹp trai! Em là Hồng Tỷ đây. Em thích tặng quà miễn phí, chỉ cần anh mang dầu ăn hoặc trái cây đến nhà em thôi. Đến không?',
-                choices: [
-                    { text: 'Đồng ý, mang dầu ăn đi gặp', next: 'meet' },
-                    { text: 'Hỏi thêm chi tiết', next: 'question' },
-                    { text: 'Từ chối, nghe lạ quá', next: 'end_safe' }
-                ]
-            },
-            question: {
-                background: 'background.jpg',
-                character: 'Hồng Tỷ',
-                dialogue: 'Ồ, anh hỏi gì vậy? Em chỉ muốn vui vẻ thôi. Đừng lo, em dùng filter giọng nói để bí mật nhé! Hehe.',
-                choices: [
-                    { text: 'Vẫn đi gặp', next: 'meet' },
-                    { text: 'Báo cảnh sát', next: 'end_police' }
-                ]
-            },
-            meet: {
-                background: 'background.jpg',
-                character: 'Hồng Tỷ',
-                dialogue: 'Chào anh! Phòng tối om để lãng mạn. Anh không nhận ra gì lạ chứ? *Cười khúc khích*',
-                choices: [
-                    { text: 'Tiếp tục, không sao', next: 'reveal' },
-                    { text: 'Bật đèn kiểm tra', next: 'end_discover' }
-                ]
-            },
-            reveal: {
-                background: 'background.jpg',
-                character: 'Bạn',
-                dialogue: 'Sau "cuộc gặp", bạn về nhà và thấy video của mình lan truyền trên mạng. Ủa, Hồng Tỷ là... đàn ông? Và bạn là nạn nhân thứ 1691?',
-                choices: [
-                    { text: 'Khóc lóc, kiểm tra sức khỏe', next: 'end_bad' },
-                    { text: 'Cười trừ, thành meme nổi tiếng', next: 'end_meme' }
-                ]
-            },
-            end_safe: {
-                background: 'background.jpg',
-                character: 'Kết Thúc',
-                dialogue: 'Bạn an toàn! Tránh được drama Hồng Tỷ. Hãy cẩn thận với app hẹn hò nhé!',
-                choices: []
-            },
-            end_police: {
-                background: 'background.jpg',
-                character: 'Kết Thúc',
-                dialogue: 'Bạn báo cảnh sát, Hồng Tỷ bị bắt. Bạn là anh hùng! Nhưng giờ mọi người biết bạn suýt bị lừa...',
-                choices: []
-            },
-            end_discover: {
-                background: 'background.jpg',
-                character: 'Kết Thúc',
-                dialogue: 'Bạn bật đèn: "Ơ, anh là đàn ông à?!" Hồng Tỷ: "Surprise!" Bạn chạy thoát, nhưng video vẫn bị quay.',
-                choices: []
-            },
-            end_bad: {
-                background: 'background.jpg',
-                character: 'Kết Thúc',
-                dialogue: 'Bạn dương tính với... drama! Giờ đi kiểm tra sức khỏe và tránh meme trên Weibo.',
-                choices: []
-            },
-            end_meme: {
-                background: 'background.jpg',
-                character: 'Kết Thúc',
-                dialogue: 'Bạn trở thành meme nổi tiếng: "Tôi và dầu ăn của tôi". Ít nhất bạn kiếm được like!',
-                choices: []
-            }
-        };
-
-        let currentScene = 'start';
-
-        function loadScene(sceneKey) {
-            const scene = scenes[sceneKey];
-            document.getElementById('background').style.backgroundImage = `url('${scene.background}')`;
-            document.getElementById('character-name').textContent = scene.character;
-            document.getElementById('dialogue-text').textContent = scene.dialogue;
-
-            const choicesDiv = document.getElementById('choices');
-            choicesDiv.innerHTML = '';
-            scene.choices.forEach(choice => {
-                const button = document.createElement('button');
-                button.classList.add('choice-button');
-                button.textContent = choice.text;
-                button.onclick = () => loadScene(choice.next);
-                choicesDiv.appendChild(button);
+        // Game variables
+        let scene, camera, renderer, controls;
+        let player, bullets = [], enemies = [], obstacles = [];
+        let gameStarted = false, gameRunning = false;
+        let score = 0, health = 100, ammo = 30, enemyCount = 0;
+        
+        // Input handling
+        let keys = {};
+        let mouseX = 0, mouseY = 0;
+        let isPointerLocked = false;
+        
+        // Game settings
+        const PLAYER_SPEED = 0.1;
+        const BULLET_SPEED = 0.5;
+        const ENEMY_SPEED = 0.02;
+        const MAX_ENEMIES = 10;
+        const WORLD_SIZE = 50;
+        
+        // Initialize game
+        function init() {
+            // Create scene
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x000000, 0, 50);
+            
+            // Create camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 2, 0);
+            
+            // Create renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x001122);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('gameContainer').appendChild(renderer.domElement);
+            
+            // Create lights
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.3);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(10, 10, 5);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            scene.add(directionalLight);
+            
+            // Create ground
+            const groundGeometry = new THREE.PlaneGeometry(WORLD_SIZE * 2, WORLD_SIZE * 2);
+            const groundMaterial = new THREE.MeshLambertMaterial({ 
+                color: 0x333333,
+                wireframe: false 
             });
-
-            const characterImage = document.getElementById('character-image');
-            characterImage.src = '';
-            characterImage.style.display = 'none';
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+            
+            // Create walls (boundaries)
+            createWalls();
+            
+            // Create obstacles
+            createObstacles();
+            
+            // Setup controls
+            setupControls();
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Start game loop
+            animate();
         }
-
-        // Bắt đầu game
-        loadScene(currentScene);
+        
+        function createWalls() {
+            const wallHeight = 5;
+            const wallThickness = 1;
+            const wallMaterial = new THREE.MeshLambertMaterial({ color: 0x666666 });
+            
+            // Create 4 walls
+            const walls = [
+                { pos: [0, wallHeight/2, -WORLD_SIZE], size: [WORLD_SIZE * 2, wallHeight, wallThickness] },
+                { pos: [0, wallHeight/2, WORLD_SIZE], size: [WORLD_SIZE * 2, wallHeight, wallThickness] },
+                { pos: [-WORLD_SIZE, wallHeight/2, 0], size: [wallThickness, wallHeight, WORLD_SIZE * 2] },
+                { pos: [WORLD_SIZE, wallHeight/2, 0], size: [wallThickness, wallHeight, WORLD_SIZE * 2] }
+            ];
+            
+            walls.forEach(wall => {
+                const geometry = new THREE.BoxGeometry(wall.size[0], wall.size[1], wall.size[2]);
+                const mesh = new THREE.Mesh(geometry, wallMaterial);
+                mesh.position.set(wall.pos[0], wall.pos[1], wall.pos[2]);
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
+                scene.add(mesh);
+                obstacles.push(mesh);
+            });
+        }
+        
+        function createObstacles() {
+            const obstacleMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+            
+            for (let i = 0; i < 15; i++) {
+                const geometry = new THREE.BoxGeometry(
+                    Math.random() * 3 + 1,
+                    Math.random() * 3 + 1,
+                    Math.random() * 3 + 1
+                );
+                const obstacle = new THREE.Mesh(geometry, obstacleMaterial);
+                obstacle.position.set(
+                    (Math.random() - 0.5) * WORLD_SIZE * 1.5,
+                    geometry.parameters.height / 2,
+                    (Math.random() - 0.5) * WORLD_SIZE * 1.5
+                );
+                obstacle.castShadow = true;
+                obstacle.receiveShadow = true;
+                scene.add(obstacle);
+                obstacles.push(obstacle);
+            }
+        }
+        
+        function setupControls() {
+            // Create player representation (invisible)
+            player = {
+                position: camera.position,
+                rotation: camera.rotation,
+                velocity: new THREE.Vector3()
+            };
+        }
+        
+        function setupEventListeners() {
+            // Keyboard events
+            document.addEventListener('keydown', (event) => {
+                keys[event.code] = true;
+                if (event.code === 'KeyR' && gameRunning) {
+                    reload();
+                }
+            });
+            
+            document.addEventListener('keyup', (event) => {
+                keys[event.code] = false;
+            });
+            
+            // Mouse events
+            document.addEventListener('click', (event) => {
+                if (!isPointerLocked) {
+                    renderer.domElement.requestPointerLock();
+                } else if (gameRunning) {
+                    shoot();
+                }
+            });
+            
+            document.addEventListener('pointerlockchange', () => {
+                isPointerLocked = document.pointerLockElement === renderer.domElement;
+            });
+            
+            document.addEventListener('mousemove', (event) => {
+                if (isPointerLocked && gameRunning) {
+                    mouseX += event.movementX * 0.002;
+                    mouseY += event.movementY * 0.002;
+                    mouseY = Math.max(-Math.PI/2, Math.min(Math.PI/2, mouseY));
+                    
+                    camera.rotation.y = mouseX;
+                    camera.rotation.x = mouseY;
+                }
+            });
+            
+            // Window resize
+            window.addEventListener('resize', onWindowResize);
+        }
+        
+        function startGame() {
+            document.getElementById('instructions').classList.add('hidden');
+            gameStarted = true;
+            gameRunning = true;
+            renderer.domElement.requestPointerLock();
+            spawnEnemies();
+        }
+        
+        function restartGame() {
+            // Reset game state
+            score = 0;
+            health = 100;
+            ammo = 30;
+            enemyCount = 0;
+            
+            // Clear enemies and bullets
+            enemies.forEach(enemy => scene.remove(enemy));
+            bullets.forEach(bullet => scene.remove(bullet));
+            enemies = [];
+            bullets = [];
+            
+            // Reset camera position
+            camera.position.set(0, 2, 0);
+            mouseX = 0;
+            mouseY = 0;
+            camera.rotation.set(0, 0, 0);
+            
+            // Hide game over screen
+            document.getElementById('gameOver').classList.add('hidden');
+            
+            // Start game
+            gameRunning = true;
+            spawnEnemies();
+            updateUI();
+        }
+        
+        function shoot() {
+            if (ammo <= 0) return;
+            
+            ammo--;
+            
+            // Create bullet
+            const bulletGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+            const bulletMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+            const bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
+            
+            bullet.position.copy(camera.position);
+            
+            // Calculate direction
+            const direction = new THREE.Vector3(0, 0, -1);
+            direction.applyQuaternion(camera.quaternion);
+            bullet.userData.direction = direction;
+            bullet.userData.speed = BULLET_SPEED;
+            bullet.userData.life = 100;
+            
+            scene.add(bullet);
+            bullets.push(bullet);
+            
+            updateUI();
+        }
+        
+        function reload() {
+            ammo = 30;
+            updateUI();
+        }
+        
+        function spawnEnemies() {
+            while (enemies.length < MAX_ENEMIES && gameRunning) {
+                const enemyGeometry = new THREE.BoxGeometry(1, 2, 1);
+                const enemyMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+                const enemy = new THREE.Mesh(enemyGeometry, enemyMaterial);
+                
+                // Random position away from player
+                let pos;
+                do {
+                    pos = new THREE.Vector3(
+                        (Math.random() - 0.5) * WORLD_SIZE * 1.5,
+                        1,
+                        (Math.random() - 0.5) * WORLD_SIZE * 1.5
+                    );
+                } while (pos.distanceTo(camera.position) < 10);
+                
+                enemy.position.copy(pos);
+                enemy.castShadow = true;
+                enemy.userData.health = 100;
+                enemy.userData.lastAttack = 0;
+                
+                scene.add(enemy);
+                enemies.push(enemy);
+                enemyCount++;
+            }
+            updateUI();
+        }
+        
+        function updatePlayer() {
+            if (!gameRunning) return;
+            
+            const moveSpeed = keys['ShiftLeft'] ? PLAYER_SPEED * 2 : PLAYER_SPEED;
+            const direction = new THREE.Vector3();
+            
+            if (keys['KeyW']) direction.z -= 1;
+            if (keys['KeyS']) direction.z += 1;
+            if (keys['KeyA']) direction.x -= 1;
+            if (keys['KeyD']) direction.x += 1;
+            
+            if (direction.length() > 0) {
+                direction.normalize();
+                direction.applyQuaternion(camera.quaternion);
+                direction.y = 0;
+                
+                const newPos = camera.position.clone().add(direction.multiplyScalar(moveSpeed));
+                
+                // Check boundaries
+                if (Math.abs(newPos.x) < WORLD_SIZE - 1 && Math.abs(newPos.z) < WORLD_SIZE - 1) {
+                    camera.position.copy(newPos);
+                }
+            }
+        }
+        
+        function updateBullets() {
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                const bullet = bullets[i];
+                
+                // Move bullet
+                const movement = bullet.userData.direction.clone().multiplyScalar(bullet.userData.speed);
+                bullet.position.add(movement);
+                
+                // Decrease life
+                bullet.userData.life--;
+                if (bullet.userData.life <= 0) {
+                    scene.remove(bullet);
+                    bullets.splice(i, 1);
+                    continue;
+                }
+                
+                // Check collision with enemies
+                for (let j = enemies.length - 1; j >= 0; j--) {
+                    const enemy = enemies[j];
+                    if (bullet.position.distanceTo(enemy.position) < 1) {
+                        // Hit enemy
+                        enemy.userData.health -= 50;
+                        scene.remove(bullet);
+                        bullets.splice(i, 1);
+                        
+                        if (enemy.userData.health <= 0) {
+                            scene.remove(enemy);
+                            enemies.splice(j, 1);
+                            score += 100;
+                            enemyCount--;
+                        }
+                        break;
+                    }
+                }
+                
+                // Check collision with obstacles
+                for (let obstacle of obstacles) {
+                    const box = new THREE.Box3().setFromObject(obstacle);
+                    if (box.containsPoint(bullet.position)) {
+                        scene.remove(bullet);
+                        bullets.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+        }
+        
+        function updateEnemies() {
+            const currentTime = Date.now();
+            
+            enemies.forEach(enemy => {
+                // Move towards player
+                const direction = camera.position.clone().sub(enemy.position).normalize();
+                enemy.position.add(direction.multiplyScalar(ENEMY_SPEED));
+                
+                // Attack player if close
+                const distance = enemy.position.distanceTo(camera.position);
+                if (distance < 2 && currentTime - enemy.userData.lastAttack > 1000) {
+                    health -= 10;
+                    enemy.userData.lastAttack = currentTime;
+                    
+                    if (health <= 0) {
+                        gameOver();
+                    }
+                }
+            });
+            
+            // Spawn new enemies if needed
+            if (enemies.length < MAX_ENEMIES) {
+                spawnEnemies();
+            }
+        }
+        
+        function updateUI() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('ammo').textContent = ammo;
+            document.getElementById('health').textContent = health;
+            document.getElementById('enemies').textContent = enemies.length;
+        }
+        
+        function gameOver() {
+            gameRunning = false;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOver').classList.remove('hidden');
+            document.exitPointerLock();
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (gameRunning) {
+                updatePlayer();
+                updateBullets();
+                updateEnemies();
+                updateUI();
+            }
+            
+            renderer.render(scene, camera);
+        }
+        
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        // Initialize game when page loads
+        init();
     </script>
 </body>
 </html>
