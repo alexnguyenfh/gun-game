@@ -3,578 +3,542 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Bắn Súng 3D</title>
+    <title>Coin Miner - Telegram Game</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Arial', sans-serif;
-            background: #000;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            user-select: none;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .mining-area {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .coin {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+            border: 3px solid #fff;
+            position: relative;
             overflow: hidden;
         }
-        
-        #gameContainer {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
+
+        .coin:hover {
+            transform: scale(1.05);
         }
-        
-        #ui {
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 100;
-            color: white;
-            padding: 20px;
-            font-size: 18px;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+
+        .coin:active {
+            transform: scale(0.95);
         }
-        
-        #crosshair {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 20px;
-            height: 20px;
-            z-index: 101;
-            pointer-events: none;
-        }
-        
-        #crosshair::before, #crosshair::after {
+
+        .coin::before {
             content: '';
             position: absolute;
-            background: #ff0000;
-            border-radius: 1px;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shine 2s infinite;
         }
-        
-        #crosshair::before {
-            width: 2px;
-            height: 20px;
-            left: 9px;
+
+        @keyframes shine {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-        
-        #crosshair::after {
-            width: 20px;
-            height: 2px;
-            top: 9px;
-        }
-        
-        #instructions {
+
+        .click-effect {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            text-align: center;
-            z-index: 102;
-            background: rgba(0,0,0,0.7);
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 400px;
+            pointer-events: none;
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 20px;
+            animation: floatUp 1s ease-out forwards;
         }
-        
-        #instructions h2 {
-            color: #ff6600;
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+        }
+
+        .upgrades {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .upgrades-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
             margin-bottom: 15px;
         }
-        
-        #instructions p {
+
+        .upgrade-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: background 0.3s;
+        }
+
+        .upgrade-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .upgrade-info {
+            flex: 1;
+        }
+
+        .upgrade-name {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .upgrade-desc {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .upgrade-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .upgrade-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .upgrade-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .auto-miner {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(76, 175, 80, 0.2);
+            border-radius: 15px;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .auto-miner.active {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            overflow: hidden;
             margin: 10px 0;
-            line-height: 1.5;
         }
-        
-        #instructions button {
-            background: #ff6600;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 15px;
-            transition: background 0.3s;
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            transition: width 0.3s;
         }
-        
-        #instructions button:hover {
-            background: #ff8833;
-        }
-        
-        .hidden {
-            display: none !important;
-        }
-        
-        #gameOver {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            text-align: center;
-            z-index: 102;
-            background: rgba(0,0,0,0.8);
-            padding: 30px;
-            border-radius: 10px;
-            max-width: 400px;
-        }
-        
-        #gameOver h2 {
-            color: #ff0000;
-            margin-bottom: 15px;
-            font-size: 24px;
-        }
-        
-        #gameOver button {
-            background: #00ff00;
-            color: black;
-            border: none;
-            padding: 15px 30px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 10px;
-            transition: background 0.3s;
-        }
-        
-        #gameOver button:hover {
-            background: #33ff33;
+
+        @media (max-width: 480px) {
+            .game-container {
+                margin: 10px;
+                padding: 15px;
+            }
+            
+            .coin {
+                width: 100px;
+                height: 100px;
+                font-size: 35px;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="gameContainer">
-        <div id="ui">
-            <div>Điểm: <span id="score">0</span></div>
-            <div>Đạn: <span id="ammo">30</span></div>
-            <div>Máu: <span id="health">100</span></div>
-            <div>Kẻ thù: <span id="enemies">0</span></div>
+    <div class="game-container">
+        <div class="header">
+            <h1 class="title">💰 Coin Miner</h1>
         </div>
-        
-        <div id="crosshair"></div>
-        
-        <div id="instructions">
-            <h2>🎯 Game Bắn Súng 3D</h2>
-            <p><strong>Điều khiển:</strong></p>
-            <p>• WASD: Di chuyển</p>
-            <p>• Chuột: Nhìn xung quanh</p>
-            <p>• Click chuột: Bắn</p>
-            <p>• R: Nạp đạn</p>
-            <p>• Shift: Chạy</p>
-            <p><strong>Mục tiêu:</strong> Tiêu diệt kẻ thù (khối đỏ) và tránh bị tấn công!</p>
-            <button onclick="startGame()">Bắt Đầu Game</button>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="coins">0</div>
+                <div class="stat-label">Coins</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="cps">1</div>
+                <div class="stat-label">Per Click</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="autoRate">0</div>
+                <div class="stat-label">Per Second</div>
+            </div>
         </div>
-        
-        <div id="gameOver" class="hidden">
-            <h2>Game Over!</h2>
-            <p>Điểm cuối cùng: <span id="finalScore">0</span></p>
-            <button onclick="restartGame()">Chơi Lại</button>
+
+        <div class="mining-area">
+            <div class="coin" id="coinButton">
+                💰
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="auto-miner" id="autoMiner">
+            <div>🤖 Auto Miner: <span id="autoStatus">Offline</span></div>
+            <div style="font-size: 12px; opacity: 0.8;">Next coin in: <span id="autoTimer">-</span>s</div>
+        </div>
+
+        <div class="upgrades">
+            <h3 class="upgrades-title">⚡ Upgrades</h3>
+            
+            <div class="upgrade-item">
+                <div class="upgrade-info">
+                    <div class="upgrade-name">Better Pickaxe</div>
+                    <div class="upgrade-desc">+1 coin per click</div>
+                </div>
+                <button class="upgrade-btn" id="clickUpgrade">
+                    Buy: <span id="clickUpgradeCost">10</span> 💰
+                </button>
+            </div>
+
+            <div class="upgrade-item">
+                <div class="upgrade-info">
+                    <div class="upgrade-name">Auto Miner</div>
+                    <div class="upgrade-desc">+1 coin per second</div>
+                </div>
+                <button class="upgrade-btn" id="autoUpgrade">
+                    Buy: <span id="autoUpgradeCost">50</span> 💰
+                </button>
+            </div>
+
+            <div class="upgrade-item">
+                <div class="upgrade-info">
+                    <div class="upgrade-name">Mining Speed</div>
+                    <div class="upgrade-desc">Auto miner 50% faster</div>
+                </div>
+                <button class="upgrade-btn" id="speedUpgrade">
+                    Buy: <span id="speedUpgradeCost">200</span> 💰
+                </button>
+            </div>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // Game variables
-        let scene, camera, renderer, controls;
-        let player, bullets = [], enemies = [], obstacles = [];
-        let gameStarted = false, gameRunning = false;
-        let score = 0, health = 100, ammo = 30, enemyCount = 0;
-        
-        // Input handling
-        let keys = {};
-        let mouseX = 0, mouseY = 0;
-        let isPointerLocked = false;
-        
-        // Game settings
-        const PLAYER_SPEED = 0.1;
-        const BULLET_SPEED = 0.5;
-        const ENEMY_SPEED = 0.02;
-        const MAX_ENEMIES = 10;
-        const WORLD_SIZE = 50;
-        
-        // Initialize game
-        function init() {
-            // Create scene
-            scene = new THREE.Scene();
-            scene.fog = new THREE.Fog(0x000000, 0, 50);
-            
-            // Create camera
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 2, 0);
-            
-            // Create renderer
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setClearColor(0x001122);
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            document.getElementById('gameContainer').appendChild(renderer.domElement);
-            
-            // Create lights
-            const ambientLight = new THREE.AmbientLight(0x404040, 0.3);
-            scene.add(ambientLight);
-            
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            directionalLight.position.set(10, 10, 5);
-            directionalLight.castShadow = true;
-            directionalLight.shadow.mapSize.width = 2048;
-            directionalLight.shadow.mapSize.height = 2048;
-            scene.add(directionalLight);
-            
-            // Create ground
-            const groundGeometry = new THREE.PlaneGeometry(WORLD_SIZE * 2, WORLD_SIZE * 2);
-            const groundMaterial = new THREE.MeshLambertMaterial({ 
-                color: 0x333333,
-                wireframe: false 
-            });
-            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-            ground.rotation.x = -Math.PI / 2;
-            ground.receiveShadow = true;
-            scene.add(ground);
-            
-            // Create walls (boundaries)
-            createWalls();
-            
-            // Create obstacles
-            createObstacles();
-            
-            // Setup controls
-            setupControls();
-            
-            // Setup event listeners
-            setupEventListeners();
-            
-            // Start game loop
-            animate();
-        }
-        
-        function createWalls() {
-            const wallHeight = 5;
-            const wallThickness = 1;
-            const wallMaterial = new THREE.MeshLambertMaterial({ color: 0x666666 });
-            
-            // Create 4 walls
-            const walls = [
-                { pos: [0, wallHeight/2, -WORLD_SIZE], size: [WORLD_SIZE * 2, wallHeight, wallThickness] },
-                { pos: [0, wallHeight/2, WORLD_SIZE], size: [WORLD_SIZE * 2, wallHeight, wallThickness] },
-                { pos: [-WORLD_SIZE, wallHeight/2, 0], size: [wallThickness, wallHeight, WORLD_SIZE * 2] },
-                { pos: [WORLD_SIZE, wallHeight/2, 0], size: [wallThickness, wallHeight, WORLD_SIZE * 2] }
-            ];
-            
-            walls.forEach(wall => {
-                const geometry = new THREE.BoxGeometry(wall.size[0], wall.size[1], wall.size[2]);
-                const mesh = new THREE.Mesh(geometry, wallMaterial);
-                mesh.position.set(wall.pos[0], wall.pos[1], wall.pos[2]);
-                mesh.castShadow = true;
-                mesh.receiveShadow = true;
-                scene.add(mesh);
-                obstacles.push(mesh);
-            });
-        }
-        
-        function createObstacles() {
-            const obstacleMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
-            
-            for (let i = 0; i < 15; i++) {
-                const geometry = new THREE.BoxGeometry(
-                    Math.random() * 3 + 1,
-                    Math.random() * 3 + 1,
-                    Math.random() * 3 + 1
-                );
-                const obstacle = new THREE.Mesh(geometry, obstacleMaterial);
-                obstacle.position.set(
-                    (Math.random() - 0.5) * WORLD_SIZE * 1.5,
-                    geometry.parameters.height / 2,
-                    (Math.random() - 0.5) * WORLD_SIZE * 1.5
-                );
-                obstacle.castShadow = true;
-                obstacle.receiveShadow = true;
-                scene.add(obstacle);
-                obstacles.push(obstacle);
+        class CoinMiner {
+            constructor() {
+                this.coins = 0;
+                this.coinsPerClick = 1;
+                this.coinsPerSecond = 0;
+                this.autoMinerActive = false;
+                this.autoMinerSpeed = 1000; // milliseconds
+                this.autoTimer = 0;
+                
+                // Upgrade costs
+                this.clickUpgradeCost = 10;
+                this.autoUpgradeCost = 50;
+                this.speedUpgradeCost = 200;
+                
+                this.init();
+                this.loadGame();
             }
-        }
-        
-        function setupControls() {
-            // Create player representation (invisible)
-            player = {
-                position: camera.position,
-                rotation: camera.rotation,
-                velocity: new THREE.Vector3()
-            };
-        }
-        
-        function setupEventListeners() {
-            // Keyboard events
-            document.addEventListener('keydown', (event) => {
-                keys[event.code] = true;
-                if (event.code === 'KeyR' && gameRunning) {
-                    reload();
-                }
-            });
-            
-            document.addEventListener('keyup', (event) => {
-                keys[event.code] = false;
-            });
-            
-            // Mouse events
-            document.addEventListener('click', (event) => {
-                if (!isPointerLocked) {
-                    renderer.domElement.requestPointerLock();
-                } else if (gameRunning) {
-                    shoot();
-                }
-            });
-            
-            document.addEventListener('pointerlockchange', () => {
-                isPointerLocked = document.pointerLockElement === renderer.domElement;
-            });
-            
-            document.addEventListener('mousemove', (event) => {
-                if (isPointerLocked && gameRunning) {
-                    mouseX += event.movementX * 0.002;
-                    mouseY += event.movementY * 0.002;
-                    mouseY = Math.max(-Math.PI/2, Math.min(Math.PI/2, mouseY));
-                    
-                    camera.rotation.y = mouseX;
-                    camera.rotation.x = mouseY;
-                }
-            });
-            
-            // Window resize
-            window.addEventListener('resize', onWindowResize);
-        }
-        
-        function startGame() {
-            document.getElementById('instructions').classList.add('hidden');
-            gameStarted = true;
-            gameRunning = true;
-            renderer.domElement.requestPointerLock();
-            spawnEnemies();
-        }
-        
-        function restartGame() {
-            // Reset game state
-            score = 0;
-            health = 100;
-            ammo = 30;
-            enemyCount = 0;
-            
-            // Clear enemies and bullets
-            enemies.forEach(enemy => scene.remove(enemy));
-            bullets.forEach(bullet => scene.remove(bullet));
-            enemies = [];
-            bullets = [];
-            
-            // Reset camera position
-            camera.position.set(0, 2, 0);
-            mouseX = 0;
-            mouseY = 0;
-            camera.rotation.set(0, 0, 0);
-            
-            // Hide game over screen
-            document.getElementById('gameOver').classList.add('hidden');
-            
-            // Start game
-            gameRunning = true;
-            spawnEnemies();
-            updateUI();
-        }
-        
-        function shoot() {
-            if (ammo <= 0) return;
-            
-            ammo--;
-            
-            // Create bullet
-            const bulletGeometry = new THREE.SphereGeometry(0.05, 8, 8);
-            const bulletMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-            const bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
-            
-            bullet.position.copy(camera.position);
-            
-            // Calculate direction
-            const direction = new THREE.Vector3(0, 0, -1);
-            direction.applyQuaternion(camera.quaternion);
-            bullet.userData.direction = direction;
-            bullet.userData.speed = BULLET_SPEED;
-            bullet.userData.life = 100;
-            
-            scene.add(bullet);
-            bullets.push(bullet);
-            
-            updateUI();
-        }
-        
-        function reload() {
-            ammo = 30;
-            updateUI();
-        }
-        
-        function spawnEnemies() {
-            while (enemies.length < MAX_ENEMIES && gameRunning) {
-                const enemyGeometry = new THREE.BoxGeometry(1, 2, 1);
-                const enemyMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
-                const enemy = new THREE.Mesh(enemyGeometry, enemyMaterial);
+
+            init() {
+                this.coinButton = document.getElementById('coinButton');
+                this.coinsDisplay = document.getElementById('coins');
+                this.cpsDisplay = document.getElementById('cps');
+                this.autoRateDisplay = document.getElementById('autoRate');
+                this.progressFill = document.getElementById('progressFill');
+                this.autoMiner = document.getElementById('autoMiner');
+                this.autoStatus = document.getElementById('autoStatus');
+                this.autoTimerDisplay = document.getElementById('autoTimer');
                 
-                // Random position away from player
-                let pos;
-                do {
-                    pos = new THREE.Vector3(
-                        (Math.random() - 0.5) * WORLD_SIZE * 1.5,
-                        1,
-                        (Math.random() - 0.5) * WORLD_SIZE * 1.5
-                    );
-                } while (pos.distanceTo(camera.position) < 10);
+                // Upgrade buttons
+                this.clickUpgradeBtn = document.getElementById('clickUpgrade');
+                this.autoUpgradeBtn = document.getElementById('autoUpgrade');
+                this.speedUpgradeBtn = document.getElementById('speedUpgrade');
                 
-                enemy.position.copy(pos);
-                enemy.castShadow = true;
-                enemy.userData.health = 100;
-                enemy.userData.lastAttack = 0;
-                
-                scene.add(enemy);
-                enemies.push(enemy);
-                enemyCount++;
+                // Cost displays
+                this.clickUpgradeCostDisplay = document.getElementById('clickUpgradeCost');
+                this.autoUpgradeCostDisplay = document.getElementById('autoUpgradeCost');
+                this.speedUpgradeCostDisplay = document.getElementById('speedUpgradeCost');
+
+                this.bindEvents();
+                this.updateDisplay();
+                this.startAutoMiner();
             }
-            updateUI();
-        }
-        
-        function updatePlayer() {
-            if (!gameRunning) return;
-            
-            const moveSpeed = keys['ShiftLeft'] ? PLAYER_SPEED * 2 : PLAYER_SPEED;
-            const direction = new THREE.Vector3();
-            
-            if (keys['KeyW']) direction.z -= 1;
-            if (keys['KeyS']) direction.z += 1;
-            if (keys['KeyA']) direction.x -= 1;
-            if (keys['KeyD']) direction.x += 1;
-            
-            if (direction.length() > 0) {
-                direction.normalize();
-                direction.applyQuaternion(camera.quaternion);
-                direction.y = 0;
-                
-                const newPos = camera.position.clone().add(direction.multiplyScalar(moveSpeed));
-                
-                // Check boundaries
-                if (Math.abs(newPos.x) < WORLD_SIZE - 1 && Math.abs(newPos.z) < WORLD_SIZE - 1) {
-                    camera.position.copy(newPos);
-                }
+
+            bindEvents() {
+                this.coinButton.addEventListener('click', (e) => {
+                    this.mineCoin(e);
+                });
+
+                this.clickUpgradeBtn.addEventListener('click', () => {
+                    this.buyClickUpgrade();
+                });
+
+                this.autoUpgradeBtn.addEventListener('click', () => {
+                    this.buyAutoUpgrade();
+                });
+
+                this.speedUpgradeBtn.addEventListener('click', () => {
+                    this.buySpeedUpgrade();
+                });
             }
-        }
-        
-        function updateBullets() {
-            for (let i = bullets.length - 1; i >= 0; i--) {
-                const bullet = bullets[i];
+
+            mineCoin(event) {
+                this.coins += this.coinsPerClick;
+                this.updateDisplay();
+                this.saveGame();
                 
-                // Move bullet
-                const movement = bullet.userData.direction.clone().multiplyScalar(bullet.userData.speed);
-                bullet.position.add(movement);
+                // Visual effect
+                this.showClickEffect(event);
+                this.animateCoin();
+            }
+
+            showClickEffect(event) {
+                const effect = document.createElement('div');
+                effect.className = 'click-effect';
+                effect.textContent = `+${this.coinsPerClick}`;
                 
-                // Decrease life
-                bullet.userData.life--;
-                if (bullet.userData.life <= 0) {
-                    scene.remove(bullet);
-                    bullets.splice(i, 1);
-                    continue;
-                }
+                const rect = this.coinButton.getBoundingClientRect();
+                effect.style.position = 'fixed';
+                effect.style.left = event.clientX + 'px';
+                effect.style.top = event.clientY + 'px';
+                effect.style.zIndex = '1000';
                 
-                // Check collision with enemies
-                for (let j = enemies.length - 1; j >= 0; j--) {
-                    const enemy = enemies[j];
-                    if (bullet.position.distanceTo(enemy.position) < 1) {
-                        // Hit enemy
-                        enemy.userData.health -= 50;
-                        scene.remove(bullet);
-                        bullets.splice(i, 1);
+                document.body.appendChild(effect);
+                
+                setTimeout(() => {
+                    document.body.removeChild(effect);
+                }, 1000);
+            }
+
+            animateCoin() {
+                this.coinButton.style.transform = 'scale(0.9) rotate(10deg)';
+                setTimeout(() => {
+                    this.coinButton.style.transform = 'scale(1) rotate(0deg)';
+                }, 100);
+            }
+
+            startAutoMiner() {
+                setInterval(() => {
+                    if (this.coinsPerSecond > 0) {
+                        this.autoTimer++;
+                        const progress = (this.autoTimer / (this.autoMinerSpeed / 1000)) * 100;
+                        this.progressFill.style.width = progress + '%';
+                        this.autoTimerDisplay.textContent = Math.ceil((this.autoMinerSpeed / 1000) - this.autoTimer);
                         
-                        if (enemy.userData.health <= 0) {
-                            scene.remove(enemy);
-                            enemies.splice(j, 1);
-                            score += 100;
-                            enemyCount--;
+                        if (this.autoTimer >= this.autoMinerSpeed / 1000) {
+                            this.coins += this.coinsPerSecond;
+                            this.autoTimer = 0;
+                            this.updateDisplay();
+                            this.saveGame();
                         }
-                        break;
+                    } else {
+                        this.progressFill.style.width = '0%';
+                        this.autoTimerDisplay.textContent = '-';
                     }
+                }, 1000);
+            }
+
+            buyClickUpgrade() {
+                if (this.coins >= this.clickUpgradeCost) {
+                    this.coins -= this.clickUpgradeCost;
+                    this.coinsPerClick++;
+                    this.clickUpgradeCost = Math.floor(this.clickUpgradeCost * 1.5);
+                    this.updateDisplay();
+                    this.saveGame();
                 }
+            }
+
+            buyAutoUpgrade() {
+                if (this.coins >= this.autoUpgradeCost) {
+                    this.coins -= this.autoUpgradeCost;
+                    this.coinsPerSecond++;
+                    this.autoUpgradeCost = Math.floor(this.autoUpgradeCost * 2);
+                    this.updateAutoMinerStatus();
+                    this.updateDisplay();
+                    this.saveGame();
+                }
+            }
+
+            buySpeedUpgrade() {
+                if (this.coins >= this.speedUpgradeCost) {
+                    this.coins -= this.speedUpgradeCost;
+                    this.autoMinerSpeed = Math.max(200, this.autoMinerSpeed * 0.8);
+                    this.speedUpgradeCost = Math.floor(this.speedUpgradeCost * 2.5);
+                    this.updateDisplay();
+                    this.saveGame();
+                }
+            }
+
+            updateAutoMinerStatus() {
+                if (this.coinsPerSecond > 0) {
+                    this.autoStatus.textContent = 'Online';
+                    this.autoMiner.classList.add('active');
+                } else {
+                    this.autoStatus.textContent = 'Offline';
+                    this.autoMiner.classList.remove('active');
+                }
+            }
+
+            updateDisplay() {
+                this.coinsDisplay.textContent = this.formatNumber(this.coins);
+                this.cpsDisplay.textContent = this.coinsPerClick;
+                this.autoRateDisplay.textContent = this.coinsPerSecond;
                 
-                // Check collision with obstacles
-                for (let obstacle of obstacles) {
-                    const box = new THREE.Box3().setFromObject(obstacle);
-                    if (box.containsPoint(bullet.position)) {
-                        scene.remove(bullet);
-                        bullets.splice(i, 1);
-                        break;
-                    }
-                }
-            }
-        }
-        
-        function updateEnemies() {
-            const currentTime = Date.now();
-            
-            enemies.forEach(enemy => {
-                // Move towards player
-                const direction = camera.position.clone().sub(enemy.position).normalize();
-                enemy.position.add(direction.multiplyScalar(ENEMY_SPEED));
+                // Update upgrade costs
+                this.clickUpgradeCostDisplay.textContent = this.formatNumber(this.clickUpgradeCost);
+                this.autoUpgradeCostDisplay.textContent = this.formatNumber(this.autoUpgradeCost);
+                this.speedUpgradeCostDisplay.textContent = this.formatNumber(this.speedUpgradeCost);
                 
-                // Attack player if close
-                const distance = enemy.position.distanceTo(camera.position);
-                if (distance < 2 && currentTime - enemy.userData.lastAttack > 1000) {
-                    health -= 10;
-                    enemy.userData.lastAttack = currentTime;
-                    
-                    if (health <= 0) {
-                        gameOver();
-                    }
+                // Update button states
+                this.clickUpgradeBtn.disabled = this.coins < this.clickUpgradeCost;
+                this.autoUpgradeBtn.disabled = this.coins < this.autoUpgradeCost;
+                this.speedUpgradeBtn.disabled = this.coins < this.speedUpgradeCost;
+                
+                this.updateAutoMinerStatus();
+            }
+
+            formatNumber(num) {
+                if (num >= 1000000) {
+                    return (num / 1000000).toFixed(1) + 'M';
+                } else if (num >= 1000) {
+                    return (num / 1000).toFixed(1) + 'K';
                 }
-            });
-            
-            // Spawn new enemies if needed
-            if (enemies.length < MAX_ENEMIES) {
-                spawnEnemies();
+                return num.toString();
+            }
+
+            saveGame() {
+                const gameData = {
+                    coins: this.coins,
+                    coinsPerClick: this.coinsPerClick,
+                    coinsPerSecond: this.coinsPerSecond,
+                    autoMinerSpeed: this.autoMinerSpeed,
+                    clickUpgradeCost: this.clickUpgradeCost,
+                    autoUpgradeCost: this.autoUpgradeCost,
+                    speedUpgradeCost: this.speedUpgradeCost
+                };
+                // Store in memory (since localStorage isn't available)
+                this.gameData = gameData;
+            }
+
+            loadGame() {
+                // Load from memory if available
+                if (this.gameData) {
+                    const data = this.gameData;
+                    this.coins = data.coins || 0;
+                    this.coinsPerClick = data.coinsPerClick || 1;
+                    this.coinsPerSecond = data.coinsPerSecond || 0;
+                    this.autoMinerSpeed = data.autoMinerSpeed || 1000;
+                    this.clickUpgradeCost = data.clickUpgradeCost || 10;
+                    this.autoUpgradeCost = data.autoUpgradeCost || 50;
+                    this.speedUpgradeCost = data.speedUpgradeCost || 200;
+                }
+                this.updateDisplay();
             }
         }
-        
-        function updateUI() {
-            document.getElementById('score').textContent = score;
-            document.getElementById('ammo').textContent = ammo;
-            document.getElementById('health').textContent = health;
-            document.getElementById('enemies').textContent = enemies.length;
-        }
-        
-        function gameOver() {
-            gameRunning = false;
-            document.getElementById('finalScore').textContent = score;
-            document.getElementById('gameOver').classList.remove('hidden');
-            document.exitPointerLock();
-        }
-        
-        function animate() {
-            requestAnimationFrame(animate);
-            
-            if (gameRunning) {
-                updatePlayer();
-                updateBullets();
-                updateEnemies();
-                updateUI();
-            }
-            
-            renderer.render(scene, camera);
-        }
-        
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-        
+
         // Initialize game when page loads
-        init();
+        document.addEventListener('DOMContentLoaded', () => {
+            new CoinMiner();
+        });
     </script>
 </body>
 </html>
