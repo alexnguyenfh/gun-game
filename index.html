@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coin Miner - Telegram Game</title>
+    <title>Coin Collector - Web3 Game</title>
     <style>
         * {
             margin: 0;
@@ -12,533 +12,749 @@
         }
 
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            overflow-x: hidden;
             color: white;
-            user-select: none;
-        }
-
-        .game-container {
-            width: 100%;
-            max-width: 400px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
-            border: 1px solid rgba(255, 255, 255, 0.18);
         }
 
         .header {
-            text-align: center;
-            margin-bottom: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
         }
 
-        .title {
-            font-size: 28px;
+        .game-title {
+            font-size: 24px;
             font-weight: bold;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .wallet-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .wallet-btn {
+            background: linear-gradient(45deg, #3375BB, #4A90E2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .wallet-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(51, 117, 187, 0.4);
+        }
+
+        .wallet-info {
+            font-size: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 15px;
+        }
+
+        .game-container {
+            margin-top: 80px;
+            padding: 20px;
+            min-height: calc(100vh - 80px);
+            position: relative;
+        }
+
+        .game-area {
+            width: 100%;
+            max-width: 800px;
+            height: 500px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .player {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+
+        .coin {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            animation: coinFloat 2s ease-in-out infinite;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+        }
+
+        @keyframes coinFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
         }
 
         .stats {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
+            justify-content: space-around;
+            margin: 20px 0;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
             border-radius: 15px;
+            backdrop-filter: blur(10px);
         }
 
         .stat-item {
             text-align: center;
-            flex: 1;
         }
 
         .stat-value {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: bold;
             color: #ffd700;
         }
 
         .stat-label {
-            font-size: 12px;
+            font-size: 14px;
             opacity: 0.8;
+            margin-top: 5px;
         }
 
-        .mining-area {
-            text-align: center;
-            margin: 30px 0;
-        }
-
-        .coin {
-            width: 120px;
-            height: 120px;
-            background: linear-gradient(45deg, #ffd700, #ffed4e);
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            cursor: pointer;
-            transition: transform 0.1s;
-            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
-            border: 3px solid #fff;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .coin:hover {
-            transform: scale(1.05);
-        }
-
-        .coin:active {
-            transform: scale(0.95);
-        }
-
-        .coin::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            animation: shine 2s infinite;
-        }
-
-        @keyframes shine {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .click-effect {
-            position: absolute;
-            pointer-events: none;
-            color: #ffd700;
-            font-weight: bold;
-            font-size: 20px;
-            animation: floatUp 1s ease-out forwards;
-        }
-
-        @keyframes floatUp {
-            0% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-50px);
-            }
-        }
-
-        .upgrades {
-            background: rgba(255, 255, 255, 0.1);
+        .shop {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
             border-radius: 15px;
-            padding: 15px;
+            backdrop-filter: blur(10px);
             margin-top: 20px;
         }
 
-        .upgrades-title {
-            text-align: center;
-            font-size: 18px;
+        .shop-title {
+            font-size: 20px;
             font-weight: bold;
             margin-bottom: 15px;
+            text-align: center;
+            color: #ffd700;
         }
 
-        .upgrade-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .shop-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .shop-item {
             background: rgba(255, 255, 255, 0.1);
-            padding: 10px 15px;
+            padding: 15px;
             border-radius: 10px;
-            margin-bottom: 10px;
-            transition: background 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            transition: all 0.3s ease;
         }
 
-        .upgrade-item:hover {
-            background: rgba(255, 255, 255, 0.2);
+        .shop-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
         }
 
-        .upgrade-info {
-            flex: 1;
-        }
-
-        .upgrade-name {
+        .shop-item-name {
             font-weight: bold;
-            font-size: 14px;
+            margin-bottom: 5px;
         }
 
-        .upgrade-desc {
+        .shop-item-description {
             font-size: 12px;
             opacity: 0.8;
+            margin-bottom: 10px;
         }
 
-        .upgrade-btn {
+        .shop-item-price {
+            color: #4A90E2;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .buy-btn {
             background: linear-gradient(45deg, #4CAF50, #45a049);
             color: white;
             border: none;
             padding: 8px 16px;
             border-radius: 20px;
             cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
         }
 
-        .upgrade-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        .buy-btn:hover {
+            background: linear-gradient(45deg, #45a049, #4CAF50);
+            transform: translateY(-1px);
         }
 
-        .upgrade-btn:disabled {
-            background: #666;
+        .buy-btn:disabled {
+            background: rgba(255, 255, 255, 0.3);
             cursor: not-allowed;
             transform: none;
         }
 
-        .auto-miner {
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            max-width: 300px;
+            z-index: 1001;
+            transform: translateX(350px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-left: 4px solid #4CAF50;
+        }
+
+        .notification.error {
+            border-left: 4px solid #f44336;
+        }
+
+        .notification.info {
+            border-left: 4px solid #2196F3;
+        }
+
+        .game-instructions {
             text-align: center;
             margin: 20px 0;
+            background: rgba(0, 0, 0, 0.3);
             padding: 15px;
-            background: rgba(76, 175, 80, 0.2);
-            border-radius: 15px;
-            border: 1px solid rgba(76, 175, 80, 0.3);
+            border-radius: 10px;
         }
 
-        .auto-miner.active {
-            animation: pulse 2s infinite;
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 1; }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
-        .progress-bar {
-            width: 100%;
-            height: 10px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 5px;
-            overflow: hidden;
-            margin: 10px 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4CAF50, #8BC34A);
-            transition: width 0.3s;
-        }
-
-        @media (max-width: 480px) {
-            .game-container {
-                margin: 10px;
-                padding: 15px;
+        @media (max-width: 768px) {
+            .game-area {
+                height: 400px;
             }
             
-            .coin {
-                width: 100px;
-                height: 100px;
-                font-size: 35px;
+            .header {
+                flex-direction: column;
+                padding: 10px;
+                gap: 10px;
+            }
+            
+            .shop-items {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <div class="header">
-            <h1 class="title">💰 Coin Miner</h1>
-        </div>
-
-        <div class="stats">
-            <div class="stat-item">
-                <div class="stat-value" id="coins">0</div>
-                <div class="stat-label">Coins</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value" id="cps">1</div>
-                <div class="stat-label">Per Click</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value" id="autoRate">0</div>
-                <div class="stat-label">Per Second</div>
-            </div>
-        </div>
-
-        <div class="mining-area">
-            <div class="coin" id="coinButton">
-                💰
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-            </div>
-        </div>
-
-        <div class="auto-miner" id="autoMiner">
-            <div>🤖 Auto Miner: <span id="autoStatus">Offline</span></div>
-            <div style="font-size: 12px; opacity: 0.8;">Next coin in: <span id="autoTimer">-</span>s</div>
-        </div>
-
-        <div class="upgrades">
-            <h3 class="upgrades-title">⚡ Upgrades</h3>
-            
-            <div class="upgrade-item">
-                <div class="upgrade-info">
-                    <div class="upgrade-name">Better Pickaxe</div>
-                    <div class="upgrade-desc">+1 coin per click</div>
-                </div>
-                <button class="upgrade-btn" id="clickUpgrade">
-                    Buy: <span id="clickUpgradeCost">10</span> 💰
-                </button>
-            </div>
-
-            <div class="upgrade-item">
-                <div class="upgrade-info">
-                    <div class="upgrade-name">Auto Miner</div>
-                    <div class="upgrade-desc">+1 coin per second</div>
-                </div>
-                <button class="upgrade-btn" id="autoUpgrade">
-                    Buy: <span id="autoUpgradeCost">50</span> 💰
-                </button>
-            </div>
-
-            <div class="upgrade-item">
-                <div class="upgrade-info">
-                    <div class="upgrade-name">Mining Speed</div>
-                    <div class="upgrade-desc">Auto miner 50% faster</div>
-                </div>
-                <button class="upgrade-btn" id="speedUpgrade">
-                    Buy: <span id="speedUpgradeCost">200</span> 💰
-                </button>
+    <div class="header">
+        <div class="game-title">🪙 Coin Collector Web3</div>
+        <div class="wallet-section">
+            <button id="walletBtn" class="wallet-btn">Kết nối Trust Wallet</button>
+            <div id="walletInfo" class="wallet-info" style="display: none;">
+                <div id="walletAddress"></div>
+                <div>ETH: <span id="ethBalance">0.0000</span></div>
             </div>
         </div>
     </div>
 
-    <script>
-        class CoinMiner {
-            constructor() {
-                this.coins = 0;
-                this.coinsPerClick = 1;
-                this.coinsPerSecond = 0;
-                this.autoMinerActive = false;
-                this.autoMinerSpeed = 1000; // milliseconds
-                this.autoTimer = 0;
+    <div class="game-container">
+        <div class="game-instructions">
+            🎮 <strong>Cách chơi:</strong> Click chuột hoặc chạm màn hình để di chuyển nhân vật thu thập coin! 
+            Mua upgrade bằng ETH thật từ Trust Wallet để tăng tốc độ game!
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="scoreValue">0</div>
+                <div class="stat-label">Điểm số</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="coinsValue">0</div>
+                <div class="stat-label">Coins thu thập</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="speedValue">1x</div>
+                <div class="stat-label">Tốc độ</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="levelValue">1</div>
+                <div class="stat-label">Level</div>
+            </div>
+        </div>
+
+        <div class="game-area" id="gameArea">
+            <div class="player" id="player">🚀</div>
+        </div>
+
+        <div class="shop">
+            <div class="shop-title">🛒 Shop - Mua bằng ETH thật</div>
+            <div class="shop-items">
+                <div class="shop-item">
+                    <div class="shop-item-name">⚡ Speed Boost</div>
+                    <div class="shop-item-description">Tăng tốc độ di chuyển x2</div>
+                    <div class="shop-item-price">0.001 ETH (~$2.5)</div>
+                    <button class="buy-btn" onclick="buyUpgrade('speed', '0.001')">Mua ngay</button>
+                </div>
                 
-                // Upgrade costs
-                this.clickUpgradeCost = 10;
-                this.autoUpgradeCost = 50;
-                this.speedUpgradeCost = 200;
+                <div class="shop-item">
+                    <div class="shop-item-name">🎯 Coin Magnet</div>
+                    <div class="shop-item-description">Hút coin từ xa hơn</div>
+                    <div class="shop-item-price">0.002 ETH (~$5)</div>
+                    <button class="buy-btn" onclick="buyUpgrade('magnet', '0.002')">Mua ngay</button>
+                </div>
+                
+                <div class="shop-item">
+                    <div class="shop-item-name">💎 Golden Coins</div>
+                    <div class="shop-item-description">Coin vàng có giá trị x5</div>
+                    <div class="shop-item-price">0.005 ETH (~$12.5)</div>
+                    <button class="buy-btn" onclick="buyUpgrade('golden', '0.005')">Mua ngay</button>
+                </div>
+                
+                <div class="shop-item">
+                    <div class="shop-item-name">🌟 Premium Pack</div>
+                    <div class="shop-item-description">Tất cả upgrade + skin đặc biệt</div>
+                    <div class="shop-item-price">0.01 ETH (~$25)</div>
+                    <button class="buy-btn" onclick="buyUpgrade('premium', '0.01')">Mua ngay</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        class CoinCollectorGame {
+            constructor() {
+                this.wallet = null;
+                this.account = null;
+                this.ethBalance = 0;
+                
+                // Game state
+                this.score = 0;
+                this.coins = 0;
+                this.level = 1;
+                this.speed = 1;
+                this.gameRunning = false;
+                this.upgrades = {
+                    speed: false,
+                    magnet: false,
+                    golden: false,
+                    premium: false
+                };
+                
+                // Game objects
+                this.player = null;
+                this.gameArea = null;
+                this.coinElements = [];
+                this.playerPosition = { x: 50, y: 50 };
                 
                 this.init();
-                this.loadGame();
             }
 
             init() {
-                this.coinButton = document.getElementById('coinButton');
-                this.coinsDisplay = document.getElementById('coins');
-                this.cpsDisplay = document.getElementById('cps');
-                this.autoRateDisplay = document.getElementById('autoRate');
-                this.progressFill = document.getElementById('progressFill');
-                this.autoMiner = document.getElementById('autoMiner');
-                this.autoStatus = document.getElementById('autoStatus');
-                this.autoTimerDisplay = document.getElementById('autoTimer');
-                
-                // Upgrade buttons
-                this.clickUpgradeBtn = document.getElementById('clickUpgrade');
-                this.autoUpgradeBtn = document.getElementById('autoUpgrade');
-                this.speedUpgradeBtn = document.getElementById('speedUpgrade');
-                
-                // Cost displays
-                this.clickUpgradeCostDisplay = document.getElementById('clickUpgradeCost');
-                this.autoUpgradeCostDisplay = document.getElementById('autoUpgradeCost');
-                this.speedUpgradeCostDisplay = document.getElementById('speedUpgradeCost');
-
-                this.bindEvents();
-                this.updateDisplay();
-                this.startAutoMiner();
+                this.initElements();
+                this.initWallet();
+                this.initGame();
             }
 
-            bindEvents() {
-                this.coinButton.addEventListener('click', (e) => {
-                    this.mineCoin(e);
-                });
-
-                this.clickUpgradeBtn.addEventListener('click', () => {
-                    this.buyClickUpgrade();
-                });
-
-                this.autoUpgradeBtn.addEventListener('click', () => {
-                    this.buyAutoUpgrade();
-                });
-
-                this.speedUpgradeBtn.addEventListener('click', () => {
-                    this.buySpeedUpgrade();
+            initElements() {
+                this.walletBtn = document.getElementById('walletBtn');
+                this.walletInfo = document.getElementById('walletInfo');
+                this.walletAddress = document.getElementById('walletAddress');
+                this.ethBalanceEl = document.getElementById('ethBalance');
+                this.gameArea = document.getElementById('gameArea');
+                this.player = document.getElementById('player');
+                
+                // Stats elements
+                this.scoreEl = document.getElementById('scoreValue');
+                this.coinsEl = document.getElementById('coinsValue');
+                this.speedEl = document.getElementById('speedValue');
+                this.levelEl = document.getElementById('levelValue');
+                
+                // Event listeners
+                this.walletBtn.addEventListener('click', () => this.connectWallet());
+                this.gameArea.addEventListener('click', (e) => this.movePlayer(e));
+                this.gameArea.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.movePlayer(e.touches[0]);
                 });
             }
 
-            mineCoin(event) {
-                this.coins += this.coinsPerClick;
-                this.updateDisplay();
-                this.saveGame();
+            async initWallet() {
+                if (typeof window.ethereum !== 'undefined') {
+                    try {
+                        const accounts = await window.ethereum.request({
+                            method: 'eth_accounts'
+                        });
+                        if (accounts.length > 0) {
+                            this.account = accounts[0];
+                            this.updateWalletUI();
+                            await this.getBalance();
+                        }
+                    } catch (error) {
+                        console.error('Lỗi khởi tạo ví:', error);
+                    }
+                }
+            }
+
+            async connectWallet() {
+                if (typeof window.ethereum === 'undefined') {
+                    this.showNotification('❌ Vui lòng cài đặt Trust Wallet!', 'error');
+                    setTimeout(() => {
+                        window.open('https://trustwallet.com/', '_blank');
+                    }, 2000);
+                    return;
+                }
+
+                try {
+                    this.walletBtn.innerHTML = '<span class="loading"></span> Đang kết nối...';
+                    this.walletBtn.disabled = true;
+
+                    const accounts = await window.ethereum.request({
+                        method: 'eth_requestAccounts'
+                    });
+
+                    if (accounts.length > 0) {
+                        this.account = accounts[0];
+                        this.updateWalletUI();
+                        await this.getBalance();
+                        this.showNotification('✅ Kết nối thành công! Giờ bạn có thể mua upgrade!', 'success');
+                        
+                        // Listen for account changes
+                        window.ethereum.on('accountsChanged', (accounts) => {
+                            if (accounts.length === 0) {
+                                this.disconnectWallet();
+                            } else {
+                                this.account = accounts[0];
+                                this.updateWalletUI();
+                                this.getBalance();
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error('Lỗi kết nối:', error);
+                    this.showNotification('❌ Lỗi kết nối: ' + error.message, 'error');
+                } finally {
+                    this.walletBtn.innerHTML = 'Kết nối Trust Wallet';
+                    this.walletBtn.disabled = false;
+                }
+            }
+
+            async getBalance() {
+                try {
+                    const balance = await window.ethereum.request({
+                        method: 'eth_getBalance',
+                        params: [this.account, 'latest']
+                    });
+                    this.ethBalance = parseInt(balance, 16) / Math.pow(10, 18);
+                    this.ethBalanceEl.textContent = this.ethBalance.toFixed(4);
+                } catch (error) {
+                    console.error('Lỗi lấy số dư:', error);
+                }
+            }
+
+            updateWalletUI() {
+                if (this.account) {
+                    this.walletBtn.style.display = 'none';
+                    this.walletInfo.style.display = 'block';
+                    this.walletAddress.textContent = `${this.account.slice(0, 6)}...${this.account.slice(-4)}`;
+                } else {
+                    this.walletBtn.style.display = 'block';
+                    this.walletInfo.style.display = 'none';
+                }
+            }
+
+            disconnectWallet() {
+                this.account = null;
+                this.ethBalance = 0;
+                this.updateWalletUI();
+                this.showNotification('👋 Đã ngắt kết nối ví', 'info');
+            }
+
+            initGame() {
+                this.gameRunning = true;
+                this.spawnCoins();
+                this.gameLoop();
+                this.updateStats();
+            }
+
+            movePlayer(event) {
+                const rect = this.gameArea.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+                
+                // Animate player movement
+                this.player.style.transition = 'all 0.3s ease';
+                this.player.style.left = Math.max(0, Math.min(x - 20, rect.width - 40)) + 'px';
+                this.player.style.top = Math.max(0, Math.min(y - 20, rect.height - 40)) + 'px';
+                
+                this.playerPosition.x = x;
+                this.playerPosition.y = y;
+                
+                // Check for coin collection
+                this.checkCoinCollection();
+            }
+
+            spawnCoins() {
+                setInterval(() => {
+                    if (this.coinElements.length < 8) {
+                        this.createCoin();
+                    }
+                }, 2000 / this.speed);
+            }
+
+            createCoin() {
+                const coin = document.createElement('div');
+                coin.className = 'coin';
+                coin.textContent = this.upgrades.golden || this.upgrades.premium ? '💎' : '🪙';
+                coin.style.left = Math.random() * (this.gameArea.offsetWidth - 25) + 'px';
+                coin.style.top = Math.random() * (this.gameArea.offsetHeight - 25) + 'px';
+                coin.coinValue = this.upgrades.golden || this.upgrades.premium ? 5 : 1;
+                
+                this.gameArea.appendChild(coin);
+                this.coinElements.push(coin);
+                
+                // Remove coin after 10 seconds
+                setTimeout(() => {
+                    if (coin.parentNode) {
+                        coin.parentNode.removeChild(coin);
+                        const index = this.coinElements.indexOf(coin);
+                        if (index > -1) {
+                            this.coinElements.splice(index, 1);
+                        }
+                    }
+                }, 10000);
+            }
+
+            checkCoinCollection() {
+                this.coinElements.forEach((coin, index) => {
+                    const coinRect = coin.getBoundingClientRect();
+                    const playerRect = this.player.getBoundingClientRect();
+                    
+                    const distance = Math.sqrt(
+                        Math.pow(coinRect.left - playerRect.left, 2) + 
+                        Math.pow(coinRect.top - playerRect.top, 2)
+                    );
+                    
+                    const collectDistance = (this.upgrades.magnet || this.upgrades.premium) ? 60 : 30;
+                    
+                    if (distance < collectDistance) {
+                        this.collectCoin(coin, index);
+                    }
+                });
+            }
+
+            collectCoin(coin, index) {
+                const points = coin.coinValue;
+                this.score += points * 10;
+                this.coins += points;
                 
                 // Visual effect
-                this.showClickEffect(event);
-                this.animateCoin();
-            }
-
-            showClickEffect(event) {
-                const effect = document.createElement('div');
-                effect.className = 'click-effect';
-                effect.textContent = `+${this.coinsPerClick}`;
-                
-                const rect = this.coinButton.getBoundingClientRect();
-                effect.style.position = 'fixed';
-                effect.style.left = event.clientX + 'px';
-                effect.style.top = event.clientY + 'px';
-                effect.style.zIndex = '1000';
-                
-                document.body.appendChild(effect);
+                coin.style.transform = 'scale(1.5)';
+                coin.style.opacity = '0';
                 
                 setTimeout(() => {
-                    document.body.removeChild(effect);
-                }, 1000);
-            }
-
-            animateCoin() {
-                this.coinButton.style.transform = 'scale(0.9) rotate(10deg)';
-                setTimeout(() => {
-                    this.coinButton.style.transform = 'scale(1) rotate(0deg)';
-                }, 100);
-            }
-
-            startAutoMiner() {
-                setInterval(() => {
-                    if (this.coinsPerSecond > 0) {
-                        this.autoTimer++;
-                        const progress = (this.autoTimer / (this.autoMinerSpeed / 1000)) * 100;
-                        this.progressFill.style.width = progress + '%';
-                        this.autoTimerDisplay.textContent = Math.ceil((this.autoMinerSpeed / 1000) - this.autoTimer);
-                        
-                        if (this.autoTimer >= this.autoMinerSpeed / 1000) {
-                            this.coins += this.coinsPerSecond;
-                            this.autoTimer = 0;
-                            this.updateDisplay();
-                            this.saveGame();
-                        }
-                    } else {
-                        this.progressFill.style.width = '0%';
-                        this.autoTimerDisplay.textContent = '-';
+                    if (coin.parentNode) {
+                        coin.parentNode.removeChild(coin);
                     }
-                }, 1000);
-            }
-
-            buyClickUpgrade() {
-                if (this.coins >= this.clickUpgradeCost) {
-                    this.coins -= this.clickUpgradeCost;
-                    this.coinsPerClick++;
-                    this.clickUpgradeCost = Math.floor(this.clickUpgradeCost * 1.5);
-                    this.updateDisplay();
-                    this.saveGame();
-                }
-            }
-
-            buyAutoUpgrade() {
-                if (this.coins >= this.autoUpgradeCost) {
-                    this.coins -= this.autoUpgradeCost;
-                    this.coinsPerSecond++;
-                    this.autoUpgradeCost = Math.floor(this.autoUpgradeCost * 2);
-                    this.updateAutoMinerStatus();
-                    this.updateDisplay();
-                    this.saveGame();
-                }
-            }
-
-            buySpeedUpgrade() {
-                if (this.coins >= this.speedUpgradeCost) {
-                    this.coins -= this.speedUpgradeCost;
-                    this.autoMinerSpeed = Math.max(200, this.autoMinerSpeed * 0.8);
-                    this.speedUpgradeCost = Math.floor(this.speedUpgradeCost * 2.5);
-                    this.updateDisplay();
-                    this.saveGame();
-                }
-            }
-
-            updateAutoMinerStatus() {
-                if (this.coinsPerSecond > 0) {
-                    this.autoStatus.textContent = 'Online';
-                    this.autoMiner.classList.add('active');
-                } else {
-                    this.autoStatus.textContent = 'Offline';
-                    this.autoMiner.classList.remove('active');
-                }
-            }
-
-            updateDisplay() {
-                this.coinsDisplay.textContent = this.formatNumber(this.coins);
-                this.cpsDisplay.textContent = this.coinsPerClick;
-                this.autoRateDisplay.textContent = this.coinsPerSecond;
+                }, 300);
                 
-                // Update upgrade costs
-                this.clickUpgradeCostDisplay.textContent = this.formatNumber(this.clickUpgradeCost);
-                this.autoUpgradeCostDisplay.textContent = this.formatNumber(this.autoUpgradeCost);
-                this.speedUpgradeCostDisplay.textContent = this.formatNumber(this.speedUpgradeCost);
-                
-                // Update button states
-                this.clickUpgradeBtn.disabled = this.coins < this.clickUpgradeCost;
-                this.autoUpgradeBtn.disabled = this.coins < this.autoUpgradeCost;
-                this.speedUpgradeBtn.disabled = this.coins < this.speedUpgradeCost;
-                
-                this.updateAutoMinerStatus();
+                this.coinElements.splice(index, 1);
+                this.updateStats();
+                this.checkLevelUp();
             }
 
-            formatNumber(num) {
-                if (num >= 1000000) {
-                    return (num / 1000000).toFixed(1) + 'M';
-                } else if (num >= 1000) {
-                    return (num / 1000).toFixed(1) + 'K';
+            checkLevelUp() {
+                const newLevel = Math.floor(this.coins / 20) + 1;
+                if (newLevel > this.level) {
+                    this.level = newLevel;
+                    this.speed = 1 + (this.level - 1) * 0.2;
+                    if (this.upgrades.speed || this.upgrades.premium) {
+                        this.speed *= 2;
+                    }
+                    this.showNotification(`🎉 Level Up! Bạn đã đạt Level ${this.level}!`, 'success');
+                    this.updateStats();
                 }
-                return num.toString();
             }
 
-            saveGame() {
-                const gameData = {
-                    coins: this.coins,
-                    coinsPerClick: this.coinsPerClick,
-                    coinsPerSecond: this.coinsPerSecond,
-                    autoMinerSpeed: this.autoMinerSpeed,
-                    clickUpgradeCost: this.clickUpgradeCost,
-                    autoUpgradeCost: this.autoUpgradeCost,
-                    speedUpgradeCost: this.speedUpgradeCost
+            updateStats() {
+                this.scoreEl.textContent = this.score.toLocaleString();
+                this.coinsEl.textContent = this.coins;
+                this.levelEl.textContent = this.level;
+                this.speedEl.textContent = this.speed.toFixed(1) + 'x';
+            }
+
+            gameLoop() {
+                if (this.gameRunning) {
+                    // Game logic updates here
+                    requestAnimationFrame(() => this.gameLoop());
+                }
+            }
+
+            async buyUpgrade(type, ethAmount) {
+                if (!this.account) {
+                    this.showNotification('❌ Vui lòng kết nối ví trước!', 'error');
+                    return;
+                }
+
+                if (this.ethBalance < parseFloat(ethAmount)) {
+                    this.showNotification('❌ Không đủ ETH để mua upgrade này!', 'error');
+                    return;
+                }
+
+                if (this.upgrades[type] && type !== 'premium') {
+                    this.showNotification('ℹ️ Bạn đã sở hữu upgrade này rồi!', 'info');
+                    return;
+                }
+
+                try {
+                    this.showNotification('💸 Đang xử lý giao dịch...', 'info');
+                    
+                    // Simulate payment (in real app, send to a contract or wallet)
+                    const txHash = await window.ethereum.request({
+                        method: 'eth_sendTransaction',
+                        params: [{
+                            from: this.account,
+                            to: '0x742C4cDe6D3B5E94fA89e6e9D5eE829b91b8A3D8', // Replace with your wallet
+                            value: '0x' + (parseFloat(ethAmount) * Math.pow(10, 18)).toString(16),
+                            gas: '0x5208', // 21000 gas
+                        }],
+                    });
+
+                    this.showNotification('⏳ Giao dịch đang được xác nhận...', 'info');
+                    
+                    // Wait for transaction confirmation (simplified)
+                    setTimeout(() => {
+                        this.upgrades[type] = true;
+                        this.applyUpgrade(type);
+                        this.getBalance(); // Refresh balance
+                        this.showNotification(`✅ Đã mua thành công ${this.getUpgradeName(type)}!`, 'success');
+                    }, 3000);
+
+                } catch (error) {
+                    console.error('Lỗi giao dịch:', error);
+                    if (error.code === 4001) {
+                        this.showNotification('❌ Giao dịch bị từ chối', 'error');
+                    } else {
+                        this.showNotification('❌ Lỗi giao dịch: ' + error.message, 'error');
+                    }
+                }
+            }
+
+            getUpgradeName(type) {
+                const names = {
+                    speed: 'Speed Boost',
+                    magnet: 'Coin Magnet',
+                    golden: 'Golden Coins',
+                    premium: 'Premium Pack'
                 };
-                // Store in memory (since localStorage isn't available)
-                this.gameData = gameData;
+                return names[type] || type;
             }
 
-            loadGame() {
-                // Load from memory if available
-                if (this.gameData) {
-                    const data = this.gameData;
-                    this.coins = data.coins || 0;
-                    this.coinsPerClick = data.coinsPerClick || 1;
-                    this.coinsPerSecond = data.coinsPerSecond || 0;
-                    this.autoMinerSpeed = data.autoMinerSpeed || 1000;
-                    this.clickUpgradeCost = data.clickUpgradeCost || 10;
-                    this.autoUpgradeCost = data.autoUpgradeCost || 50;
-                    this.speedUpgradeCost = data.speedUpgradeCost || 200;
+            applyUpgrade(type) {
+                switch(type) {
+                    case 'speed':
+                        this.speed *= 2;
+                        this.player.textContent = '⚡';
+                        break;
+                    case 'magnet':
+                        // Magnet effect applied in checkCoinCollection
+                        break;
+                    case 'golden':
+                        // Golden coins applied in createCoin
+                        break;
+                    case 'premium':
+                        this.speed *= 2;
+                        this.player.textContent = '🌟';
+                        this.upgrades.speed = true;
+                        this.upgrades.magnet = true;
+                        this.upgrades.golden = true;
+                        break;
                 }
-                this.updateDisplay();
+                this.updateStats();
+            }
+
+            showNotification(message, type = 'info') {
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+                notification.className = `notification ${type} show`;
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 5000);
             }
         }
 
         // Initialize game when page loads
         document.addEventListener('DOMContentLoaded', () => {
-            new CoinMiner();
+            new CoinCollectorGame();
         });
+
+        // Global function for buy buttons
+        let gameInstance;
+        window.addEventListener('load', () => {
+            gameInstance = new CoinCollectorGame();
+        });
+
+        function buyUpgrade(type, amount) {
+            if (gameInstance) {
+                gameInstance.buyUpgrade(type, amount);
+            }
+        }
     </script>
 </body>
 </html>
